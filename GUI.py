@@ -11,7 +11,7 @@ class MyFirstGUI:
         self.L1 = Label(self.window,text = "Hej David!", font=("Arial Bold", 20))
         self.L1.grid(column=0,row=0)
 
-        self.B1 = Button(self.window,text="April", fg="red", command = self.click)
+        self.B1 = Button(self.window,text="Set Reference",bg="yellow", fg="black", command = self.click)
         self.B1.grid(column=0,row=1)
 
         self.chk = BooleanVar()
@@ -29,6 +29,10 @@ class MyFirstGUI:
 
     def get_ref(self):
         return self.ref
+
+    def set_regul(self,regulator):
+        this.regulator = regulator
+        
 
 
 
