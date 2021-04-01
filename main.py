@@ -6,9 +6,12 @@ import time
 #from GUI import MyFirstGUI
 
 def start_regul(cf_client, regul):
-    while cf_client.ready == False:
-        print("Waiting for cf_client to connect")
-        time.sleep(2)
+    try:
+        while cf_client.ready == False:
+            print("Setting up connection...")
+            time.sleep(2)
+    except:
+        pass
     regul.start()
 
 
