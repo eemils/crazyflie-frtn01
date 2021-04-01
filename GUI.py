@@ -1,6 +1,6 @@
 import tkinter
 
-window = tkinter.tk()
+window = tkinter.Tk()
 window.title("Playing with the drone")
 
 label = tkinter.Label(window,text = "Hej David!").pack()
