@@ -47,6 +47,14 @@ class SimpleExample:
         print('Trying to connect to %s' % link_uri)
         self.cf.open_link(link_uri)
 
+
+
+
+        #NY Kod
+        this.Preg = Pcontroller()
+
+
+
     def _connected(self, link_uri):
         """ This callback is called form the Crazyflie API when a Crazyflie
         has been connected and the TOCs have been downloaded."""
@@ -161,15 +169,17 @@ class SimpleExample:
         self.cf.commander.send_setpoint(0, 0, 0, 0)
 
         while True:
+            ref = 1;
             # send setpoint as (roll, pitch, yaw, thrust)
             # thrust is in the range [0,65535] corresponding to 0 thrust
             # and 2g of vertical thrust
             tid = time.time()
             tidCurr = tid
-            while tidCurr <( tid + 10):
-                self.cf.commander.send_setpoint(0, 0, 0, 30000)
+            while tidCurr <( tid + 20):
+                u = self.Preg.calc(self.pos[2],ref)
+                self.cf.commander.send_setpoint(0, 0, 0, 60000*u)
                 tidCurr = time.time()
-                time.sleep(0.4)
+                time.sleep(0.1)
             #time.sleep(2)
 
             self.cf.commander.send_setpoint(0, 0, 0, 15000)
