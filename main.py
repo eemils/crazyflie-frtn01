@@ -13,6 +13,7 @@ def start_regul(cf_client, regul):
             time.sleep(2)
     except:
         pass
+    print("Starting regl")
     regul.start()
 
 
