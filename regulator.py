@@ -4,14 +4,18 @@ from PController import PController
 
 
 class Regulator(threading.Thread):
-'''The regulator class calls the controllers so '''
-    def __init__(self):
+    '''The regulator class calls the controllers so '''
+    def __init__(self, cf_client):
+        self.cf_client = cf_client
         threading.Thread.__init__(self)
-        self.period = 0.2 # How long between every loop of the
+
+        self.period = 5 # How long between every loop of the
 
         self.thrust_ctrl = PController()
-        self.thrust_ctrl.set_params('K' = 5, 'beta' = 1, 'h' = self.period)
+        self.thrust_ctrl.set_params(K = 5, beta = 1, h = self.period)
         # Contructing the controllers
+
+
 
     def set_ref_gen(self, ref_gen):
         self.ref_gen = ref_gen
@@ -20,7 +24,14 @@ class Regulator(threading.Thread):
         try:
             while True:
                 time_start = time.time()
-                print("Running")
+                print("Printar koordinater")
+                print(self.cf_client.pos)
+
+                print("Drar igång thrust-motorn ett par sekunder")
+                self.cf_client.cf.commander.send_setpoint(0, 0, 0, 3000)
+                time.sleep(2)
+                self.cf_client.cf.commander.send_setpoint(0, 0, 0,0)
+
                 # Read some inputs and write some outputs on every degree of
                 # freedome. Synchronize every read and write on the instance of
                 # the controller

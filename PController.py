@@ -10,7 +10,6 @@ class PController:
         self.beta = 1
         self.h = 0.02 # period
 
-        #
         self._lock = threading.Lock()
 
     def calc_out(self, y, y_ref):
