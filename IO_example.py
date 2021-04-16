@@ -15,11 +15,9 @@ logging.basicConfig(level=logging.ERROR)
 URI = 'radio://0/80/2M'
 
 
-class Regulator(threading.Thread):
+class SimpleExample:
 
     def __init__(self, link_uri):
-        self.set_up_controllers()
-
         """ Initialize with the specified link_uri """
 
         self.cf = Crazyflie(rw_cache='./cache')
@@ -48,8 +46,6 @@ class Regulator(threading.Thread):
         # Start connection with drone!
         print('Trying to connect to %s' % link_uri)
         self.cf.open_link(link_uri)
-
-    def set_up_controllers()
 
     def _connected(self, link_uri):
         """ This callback is called form the Crazyflie API when a Crazyflie
