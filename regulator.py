@@ -9,7 +9,7 @@ class Regulator(threading.Thread):
         self.cf_client = cf_client
         threading.Thread.__init__(self)
 
-        self.period = 5 # How long between every loop of the
+        self.period = 7 # How long between every loop of the
 
         # Creating one controller for each dimension of freedome
         self.thrust_ctrl = PController()
@@ -24,14 +24,16 @@ class Regulator(threading.Thread):
 
     def run(self):
         try:
+            self.cf_client.cf.commander.send_setpoint(0, 0, 0,0)
+
             while True:
                 time_start = time.time()
-                print("Printar koordinater")
-                print(self.cf_client.pos)
 
                 print("Drar igång thrust-motorn ett par sekunder")
-                self.cf_client.cf.commander.send_setpoint(0, 0, 0, 3000)
-                time.sleep(2)
+                self.cf_client.cf.commander.send_setpoint(0, 0, 0, 40000)
+                print(self.cf_client.pos)
+                time.sleep(5)
+                print(self.cf_client.pos)
                 self.cf_client.cf.commander.send_setpoint(0, 0, 0,0)
 
                 # Read some inputs and write some outputs on every degree of
