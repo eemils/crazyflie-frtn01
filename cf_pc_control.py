@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import sys
 import time
-import termios
+#import termios
 import logging
 import threading
 
@@ -13,7 +13,7 @@ from cflib.crazyflie.log import LogConfig
 
 # Set a channel - if set to None, the first available crazyflie is used
 #URI = 'radio://0/101/2M'
-URI = None
+URI = 'radio://0/80/2M'
 
 def read_input(file=sys.stdin):
     """Registers keystrokes and yield these every time one of the
