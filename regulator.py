@@ -24,21 +24,19 @@ class Regulator(threading.Thread):
 
     def run(self):
         try:
-
             self.cf_client.reset_estimator()
             self.cf_client.make_position_sanity_check();
-            self.cf_client.cf.commander.send_setpoint(0, 0, 0,0)
+
 
             while True:
                 time_start = time.time()
-
+                self.cf_client.cf.commander.send_setpoint(0, 0, 0,0)
                 #print("Drar igång thrust-motorn ett par sekunder")
                 self.cf_client.cf.commander.send_setpoint(0, 0, 0, 20000)
                 print(self.cf_client.pos)
-                time.sleep(2)
+                time.sleep(3)
                 print(self.cf_client.pos)
                 self.cf_client.cf.commander.send_setpoint(0, 0, 0,0)
-                time.sleep(2)
                 # Read some inputs and write some outputs on every degree of
                 # freedome. Synchronize every read and write on the instance of
                 # the controller
