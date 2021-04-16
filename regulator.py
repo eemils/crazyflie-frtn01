@@ -11,8 +11,10 @@ class Regulator(threading.Thread):
 
         self.period = 5 # How long between every loop of the
 
+        # Creating one controller for each dimension of freedome
         self.thrust_ctrl = PController()
         self.thrust_ctrl.set_params(K = 5, beta = 1, h = self.period)
+
         # Contructing the controllers
 
 
