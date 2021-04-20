@@ -2,7 +2,8 @@ import logging
 import time
 import numpy as np
 import transformations as trans
-
+from PController import PController
+import threading
 from threading import Thread
 
 import cflib
@@ -18,7 +19,10 @@ URI = 'radio://0/80/2M'
 class Regulator(threading.Thread):
 
     def __init__(self, link_uri):
+        Thread.__init__(self)
+        """Setting up some paramters"""
         self.set_up_controllers()
+        self.set_up_limits()
 
         """ Initialize with the specified link_uri """
 
@@ -49,7 +53,14 @@ class Regulator(threading.Thread):
         print('Trying to connect to %s' % link_uri)
         self.cf.open_link(link_uri)
 
-    def set_up_controllers()
+    def set_up_controllers(self):
+        """ Setting up controllers """
+        self.thrust_controller = PController()
+
+    def set_up_limits(self):
+        """ Setting up limits for signals """
+        self.thrust_limit = [0,65535] # 65535 corresponding to 2g
+
 
     def _connected(self, link_uri):
         """ This callback is called form the Crazyflie API when a Crazyflie
@@ -101,7 +112,7 @@ class Regulator(threading.Thread):
                                'found in log TOC. Will not get any position data.')
         # Start a separate thread to run the example
         # Do not hijack the calling thread!
-        Thread(target=self._example).start()
+        Thread(target=self._run).start()
 
     def _disconnected(self, link_uri):
         print('Disconnected from %s' % link_uri)
@@ -154,15 +165,14 @@ class Regulator(threading.Thread):
         # Should be replaced by something that actually checks...
         time.sleep(1.5)
 
-    def _example(self):
+    def _run(self):
 
         print('Waiting for position estimate to be good enough...')
         self.reset_estimator()
-
         self.make_position_sanity_check();
-
         #first command has to be null for safety
         self.cf.commander.send_setpoint(0, 0, 0, 0)
+
 
         while True:
             # send setpoint as (roll, pitch, yaw, thrust)
@@ -170,11 +180,11 @@ class Regulator(threading.Thread):
             # and 2g of vertical thrust
             tid = time.time()
             tidCurr = tid
-            while tidCurr <( tid + 10):
+            while tidCurr<(tid+10):
                 self.cf.commander.send_setpoint(0, 0, 0, 30000)
                 tidCurr = time.time()
-                time.sleep(0.4)
-            #time.sleep(2)
+                print(self.cf.pos)
+                time.sleep(0.1)
 
             self.cf.commander.send_setpoint(0, 0, 0, 15000)
 
