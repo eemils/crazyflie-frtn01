@@ -173,7 +173,7 @@ class SimpleExample:
         # the variable self.pos is updated periodically
         # according tothe variable period_in_ms
         for i in range(100):
-            self.cf.commander.set_hoover_setpoint(0,0,0,1)
+            self.cf.commander.send_hover_setpoint(0,0,0,1)
             print(self.pos)
             time.sleep(0.1)
 
