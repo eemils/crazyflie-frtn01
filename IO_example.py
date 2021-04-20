@@ -19,7 +19,7 @@ class SimpleExample:
 
     def __init__(self, link_uri):
         """ Initialize with the specified link_uri """
-
+        cflib.crtp.init_drivers(enable_debug_driver=False)
         self.cf = Crazyflie(rw_cache='./cache')
 
         # add a bunch of callbacks to initialize logging or
@@ -46,14 +46,6 @@ class SimpleExample:
         # Start connection with drone!
         print('Trying to connect to %s' % link_uri)
         self.cf.open_link(link_uri)
-
-
-
-
-        #NY Kod
-        #this.Preg = Pcontroller()
-
-
 
     def _connected(self, link_uri):
         """ This callback is called form the Crazyflie API when a Crazyflie
@@ -163,38 +155,30 @@ class SimpleExample:
         print('Waiting for position estimate to be good enough...')
         self.reset_estimator()
 
-        self.make_position_sanity_check();
+        self.make_position_sanity_check()
 
         #first command has to be null for safety
         self.cf.commander.send_setpoint(0, 0, 0, 0)
 
-        while True:
-            ref = 1;
-            # send setpoint as (roll, pitch, yaw, thrust)
-            # thrust is in the range [0,65535] corresponding to 0 thrust
-            # and 2g of vertical thrust
-            tid = time.time()
-            tidCurr = tid
-            while tidCurr <( tid + 20):
-                #u = self.Preg.calc(self.pos[2],ref)
-                #self.cf.commander.send_setpoint(0, 0, 0, 60000*u)
-                tidCurr = time.time()
-                print(self.pos)
-                time.sleep(0.1)
-            #time.sleep(2)
+        # send setpoint as (roll, pitch, yaw, thrust)
+        # thrust is in the range [0,65535] corresponding to 0 thrust
+        # and 2g of vertical thrust
 
-            self.cf.commander.send_setpoint(0, 0, 0, 15000)
+        self.cf.commander.send_setpoint(0, 0, 0, 30000)
 
-            # print position estimate for 10 seconds
-            # the variable self.pos is updated periodically
-            # according tothe variable period_in_ms
-            for i in range(5):
-                print(self.pos)
-                time.sleep(0.1)
+        time.sleep(2)
+        self.cf.commander.send_setpoint(0, 0, 0, 15000)
 
-            # Make sure that the last packet leaves before the link is closed
-            # since the message queue is not flushed before closing
+        # print position estimate for 10 seconds
+        # the variable self.pos is updated periodically
+        # according tothe variable period_in_ms
+        for i in range(100):
+            print(self.pos)
             time.sleep(0.1)
+
+        # Make sure that the last packet leaves before the link is closed
+        # since the message queue is not flushed before closing
+        time.sleep(0.1)
         self.cf.close_link()
 
 
