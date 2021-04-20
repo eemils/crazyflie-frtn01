@@ -51,7 +51,7 @@ class SimpleExample:
 
 
         #NY Kod
-        this.Preg = Pcontroller()
+        #this.Preg = Pcontroller()
 
 
 
@@ -176,9 +176,10 @@ class SimpleExample:
             tid = time.time()
             tidCurr = tid
             while tidCurr <( tid + 20):
-                u = self.Preg.calc(self.pos[2],ref)
-                self.cf.commander.send_setpoint(0, 0, 0, 60000*u)
+                #u = self.Preg.calc(self.pos[2],ref)
+                #self.cf.commander.send_setpoint(0, 0, 0, 60000*u)
                 tidCurr = time.time()
+                print(self.pos)
                 time.sleep(0.1)
             #time.sleep(2)
 

@@ -13,8 +13,6 @@ from cflib.crazyflie.log import LogConfig
 
 logging.basicConfig(level=logging.ERROR)
 
-URI = 'radio://0/80/2M'
-
 
 class Regulator(threading.Thread):
 
@@ -183,8 +181,9 @@ class Regulator(threading.Thread):
             while tidCurr<(tid+10):
                 self.cf.commander.send_setpoint(0, 0, 0, 30000)
                 tidCurr = time.time()
-                print(self.cf.pos)
+                print(self.pos)
                 time.sleep(0.1)
+
 
             self.cf.commander.send_setpoint(0, 0, 0, 15000)
 
