@@ -3,6 +3,7 @@ import time
 import numpy as np
 import transformations as trans
 from PController import PController
+from PDController import PDController
 import threading
 from threading import Thread
 
@@ -18,12 +19,7 @@ class Regulator(threading.Thread):
 
     def __init__(self, link_uri):
         Thread.__init__(self)
-        """Setting up some paramters"""
-        self.set_up_controllers()
-        self.set_up_limits()
-
         """ Initialize with the specified link_uri """
-
         self.cf = Crazyflie(rw_cache='./cache')
 
         # add a bunch of callbacks to initialize logging or
@@ -34,7 +30,7 @@ class Regulator(threading.Thread):
         self.cf.connection_lost.add_callback(self._connection_lost)
 
         # Control period. [ms]
-        self.period_in_ms = 20  # a random number
+        self.period_in_ms = 50  # a random number
         # Pose estimate from the Kalman filter
         self.pos = np.r_[0.0, 0.0, 0.0]
         self.vel = np.r_[0.0, 0.0, 0.0]
@@ -47,22 +43,26 @@ class Regulator(threading.Thread):
         # This makes Python exit when this is the only thread alive.
         self.daemon = True
 
+        #Setting up controllers
+        self.thrust_ctrl = PDController(self.period_in_ms)
+        self.thrust_ctrl.set_params(K=30000, h = self.period_in_ms, Td = 1, N=7)
+        self.roll_ctrl = PDController(self.period_in_ms)
+        self.pitch_ctrl = PDController(self.period_in_ms)
+
+        self.thrust_ctrl_signal = 0
+        self.roll_ctrl_signal = 0
+        self.pitch_ctrl_signal = 0
+
+        self.ref = [0,0,0]; # Reference
+
         # Start connection with drone!
         print('Trying to connect to %s' % link_uri)
         self.cf.open_link(link_uri)
 
-    def set_up_controllers(self):
-        """ Setting up controllers """
-        self.thrust_controller = PController()
-
-    def set_up_limits(self):
-        """ Setting up limits for signals """
-        self.thrust_limit = [0,65535] # 65535 corresponding to 2g
-
-
     def _connected(self, link_uri):
         """ This callback is called form the Crazyflie API when a Crazyflie
         has been connected and the TOCs have been downloaded."""
+        print("Connected")
         log_stab_att = LogConfig(name='Stabilizer', period_in_ms=self.period_in_ms)
         log_stab_att.add_variable('stabilizer.roll', 'float')
         log_stab_att.add_variable('stabilizer.pitch', 'float')
@@ -163,6 +163,28 @@ class Regulator(threading.Thread):
         # Should be replaced by something that actually checks...
         time.sleep(1.5)
 
+    def thrust_limit(self, sgnl):
+        if sgnl>65535:
+            out = 65535
+        elif sgnl<0:
+            out = 0
+        else:
+            out = sgnl
+        return int(out)
+
+    def get_thrust_plot_data(self):
+        '''Returns the regulator data in format
+        [Reference z-position, Cuttent z-position, Thrust control signal]'''
+        return [self.ref[2], self.pos[2], self.thrust_ctrl_signal]
+
+    def loop_sleep(self, timeStart):
+        """ Sleeps the control loop to make it run at a specified rate """
+        deltaTime = float(self.period_in_ms)*0.001 - (time.time() - timeStart)
+        if deltaTime > 0:
+            time.sleep(deltaTime)
+        else:
+            print('Could not make controller loop deadline')
+
     def _run(self):
 
         print('Waiting for position estimate to be good enough...')
@@ -170,40 +192,34 @@ class Regulator(threading.Thread):
         self.make_position_sanity_check();
         #first command has to be null for safety
         self.cf.commander.send_setpoint(0, 0, 0, 0)
-
+        self.z_ref = 1
+        self.x_ref = 0
+        self.y_ref = 0
 
         while True:
             # send setpoint as (roll, pitch, yaw, thrust)
-            # thrust is in the range [0,65535] corresponding to 0 thrust
+            # thrust is in the range  [0,65535] corresponding to 0 thrust
             # and 2g of vertical thrust
             tid = time.time()
-            tidCurr = tid
-            while tidCurr<(tid+10):
-                self.cf.commander.send_setpoint(0, 0, 0, 30000)
-                tidCurr = time.time()
-                print(self.pos)
-                time.sleep(0.1)
+            self.thrust_ctrl_signal = self.thrust_limit(self.thrust_ctrl.calc_out(self.pos[2],self.z_ref))
+            self.cf.commander.send_setpoint(0, 0, 0, self.thrust_ctrl_signal)
 
-
-            self.cf.commander.send_setpoint(0, 0, 0, 15000)
-
-            # print position estimate for 10 seconds
-            # the variable self.pos is updated periodically
-            # according tothe variable period_in_ms
-            for i in range(5):
-                print(self.pos)
-                time.sleep(0.1)
-
+            self.loop_sleep(tid)
             # Make sure that the last packet leaves before the link is closed
             # since the message queue is not flushed before closing
-            time.sleep(0.1)
         self.cf.close_link()
 
 
 if __name__ == '__main__':
     # Initialize the low-level drivers (don't list the debug drivers)
     # needed to use the crazyradio
+    URI = 'radio://0/80/2M'
     cflib.crtp.init_drivers(enable_debug_driver=False)
 
-    # create SimpleExample object and run it!
-    le = SimpleExample(URI)
+    # The regulator thread is started when the connection is set up
+    regul = Regulator(URI)
+    while True:
+        try:
+            pass
+        except KeyboardInterrupt:
+            break
