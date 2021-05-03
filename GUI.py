@@ -49,7 +49,6 @@ def z_plotting(i, gui):
         length = len(gui.z_ref_plot_data)
         ax_thrust.plot(np.arange(0,length), gui.z_ref_plot_data)
         ax_thrust.plot(np.arange(0,length), gui.z_pos_plot_data)
-        print(gui.thrust_ctrl_sgnl_plot_data)
         ax_thrust.plot(np.arange(0,length),gui.thrust_ctrl_sgnl_plot_data)
         ax_thrust.set_xlim([length-50,length])
         ax_thrust.legend(['Reference','Position','Control Signal'])
@@ -82,7 +81,7 @@ class GUI(tk.Tk):
         self.thrust_Td_input = Entry(self)
         self.thrust_Td_input.grid(column=1, row=2)
 
-        self.thrust_N_text = Label(self,text="Td = ", font=("Arial",11))
+        self.thrust_N_text = Label(self,text="N = ", font=("Arial",11))
         self.thrust_N_text.grid(column=0,row=3)
         self.thrust_N_input = Entry(self)
         self.thrust_N_input.grid(column=1, row=3)
@@ -90,23 +89,23 @@ class GUI(tk.Tk):
 
         # Roll and yaw controller parameters
         self.roll_yaw_lab = Label(self,text = "Roll and pitch controllers", font=("Arial Bold", 12))
-        self.roll_yaw_lab.grid(column=0,row=3, columnspan = 2)
+        self.roll_yaw_lab.grid(column=0,row=5, columnspan = 2)
         self.roll_yaw_K_text = Label(self,text="K = ", font=("Arial",11))
-        self.roll_yaw_K_text.grid(column=0,row=4)
+        self.roll_yaw_K_text.grid(column=0,row=6)
         self.roll_yaw_K_input = Entry(self)
-        self.roll_yaw_K_input.grid(column=1, row=4)
+        self.roll_yaw_K_input.grid(column=1, row=6)
         self.roll_yaw_Td_text = Label(self,text="Td = ", font=("Arial",11))
-        self.roll_yaw_Td_text.grid(column=0,row=5)
+        self.roll_yaw_Td_text.grid(column=0,row=7)
         self.roll_yaw_Td_input = Entry(self)
-        self.roll_yaw_Td_input.grid(column=1, row=5)
+        self.roll_yaw_Td_input.grid(column=1, row=7)
         self.roll_yaw_N_text = Label(self,text="N = ", font=("Arial",11))
-        self.roll_yaw_N_text.grid(column=0,row=6)
+        self.roll_yaw_N_text.grid(column=0,row=8)
         self.roll_yaw_N_input = Entry(self)
-        self.roll_yaw_N_input.grid(column=1, row=6)
+        self.roll_yaw_N_input.grid(column=1, row=8)
 
         # Apply parameters to controllers button
         self.apply_params_button = Button(self,text="Apply parameters", command = self.apply_params_button_action)
-        self.apply_params_button.grid(column=0,row=8, columnspan=2)
+        self.apply_params_button.grid(column=0,row=10, columnspan=2)
 
         self.continuePlotting = False
         # Start plotting button
@@ -125,7 +124,7 @@ class GUI(tk.Tk):
 
         self.thrust_plot_canvas = FigureCanvasTkAgg(fig, master=self)
         self.thrust_plot_canvas.draw()
-        self.thrust_plot_canvas.get_tk_widget().grid(row=1, column=3, columnspan=3)
+        self.thrust_plot_canvas.get_tk_widget().grid(row=1, column=3, columnspan=3, rowspan=3)
 
 
         #self.after(self.plotting_period, self.z_plot_data)
@@ -155,7 +154,8 @@ class GUI(tk.Tk):
     def set_regul(self,regulator):
         self.regulator = regulator
         self.thrust_K_input.insert(0, str(self.regulator.thrust_ctrl.K))
-        
+        self.thrust_Td_input.insert(0, str(self.regulator.thrust_ctrl.Td))
+        self.thrust_N_input.insert(0, str(self.regulator.thrust_ctrl.N))
         self.roll_yaw_K_input.insert(0, str(self.regulator.roll_ctrl.K))
         self.roll_yaw_Td_input.insert(0, str(self.regulator.roll_ctrl.Td))
         self.roll_yaw_N_input.insert(0, str(self.regulator.roll_ctrl.N))

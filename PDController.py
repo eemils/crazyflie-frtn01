@@ -43,3 +43,6 @@ class PDController:
             self.h = kwargs.get('h',self.h)
             self.Td = kwargs.get('Td',self.Td)
             self.N = kwargs.get('N',self.N)
+        print(self.K)
+        print(self.Td)
+        print(self.N)
